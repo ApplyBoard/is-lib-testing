@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.mycompany</groupId>
+	<groupId>481d557c-9c6b-4924-9563-6d008b270da2</groupId>
 	<artifactId>is-lib-testing</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>mule-application</packaging>
 
 	<name>is-lib-testing</name>
@@ -17,6 +17,15 @@
 		<mule.maven.plugin.version>3.5.4</mule.maven.plugin.version>
 		<munit.version>2.3.9</munit.version>
 	</properties>
+	
+	<distributionManagement>
+		<repository>
+			<id>MuleRepository</id>
+			<name>AB Exchange Repository</name>
+			<url>https://maven.anypoint.mulesoft.com/api/v1/organizations/481d557c-9c6b-4924-9563-6d008b270da2/maven</url>
+			<layout>default</layout>
+		</repository>
+	</distributionManagement>
 
 	<build>
 		<plugins>
@@ -30,6 +39,9 @@
 				<artifactId>mule-maven-plugin</artifactId>
 				<version>${mule.maven.plugin.version}</version>
 				<extensions>true</extensions>
+				<configuration>
+					<classifier>mule-plugin</classifier>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.mulesoft.munit.tools</groupId>
