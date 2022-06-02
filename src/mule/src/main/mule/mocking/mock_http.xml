@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule
+	xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd http://www.mulesoft.org/schema/mule/munit-tools http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<flow name="testing-mocking-http_request"
+		doc:id="92885117-0685-40b1-afc4-2fbde62ad164">
+		<munit-tools:dequeue doc:name="Dequeue"
+			doc:id="3fb07be8-7c62-45c7-934a-ff609da9257d" queueName="testHttp"
+			target="test" timeout="0"/>
+		<try doc:name="Try" doc:id="274e7ece-6a4f-4494-86fa-c590befd8323" >
+			<http:request method="POST" doc:name="Request" doc:id="cec52c60-8464-4b0c-966c-b17833de03f9" config-ref="Testing_HttpRequestor" path="/mockhttp" outputMimeType="application/json" target="httpResult" targetValue="#[message]">
+			<http:body><![CDATA[#[output json --- vars.test]]]></http:body>
+			<http:headers><![CDATA[#[output application/java
+---
+{
+	"Content-Type" : "application/json"
+}]]]></http:headers>
+		</http:request>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="66360959-a94b-477d-99d6-f67e90780cf2" >
+					<logger level="INFO" doc:name="INFO: Raised Error" doc:id="453caa73-57f9-42f1-966b-33b405ccee07" message="Mock HTTP Raised Error"/>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</flow>
+
+	<flow name="testing-mocking-http_listener" doc:id="6b83e501-3396-49cd-b94f-34abbcf5ef67" >
+		<http:listener doc:name="Listener" doc:id="72e1d8ad-5f9f-497d-a7e3-1ca74bcd5c85" config-ref="Testing_HttpListener" path="/mockhttp" outputMimeType="application/json">
+			<http:response statusCode="#[payload.httpCode default 200]" >
+				<http:body ><![CDATA[#[output json --- payload.httpResponse default ""]]]></http:body>
+			</http:response>
+			<http:error-response statusCode="#[999]" >
+				<http:body ><![CDATA[#[output json --- error]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<logger level="INFO" doc:name="Response" doc:id="daf3999c-b0fe-482a-8227-15e986ce3b8a" message="MOCK HTTP Received: #[payload]"/>
+	</flow>
+</mule>

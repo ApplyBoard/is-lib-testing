@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="mock_http_tests.xml" />
+	<munit:test name="TEST-mock_http-200_OK" doc:id="0e9a5775-60b1-495e-b413-ae9a84ccc81e" >
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="testing-mocking-http_request" />
+			<munit:enable-flow-source value="testing-mocking-http_listener" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:queue doc:name="testHttp" doc:id="c111a2c7-863c-40f3-8cb9-f5b63821a1f2" queueName="testHttp">
+				<munit-tools:value ><![CDATA[#[{
+	  httpCode: 200
+	, httpResponse: "OK"
+}]]]></munit-tools:value>
+			</munit-tools:queue>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Call Mock HTTP" doc:id="724cfcb5-da6c-491e-b50c-e38c8edab98c" name="testing-mocking-http_request"/>
+		</munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.httpResult.attributes.statusCode]" is="#[MunitTools::equalTo(200)]" message="#['The HTTP Status code is not correct!' ++ write(vars.httpResult, 'application/json')]" doc:name="Status Code is 200" />
+            <munit-tools:assert-that expression="#[vars.httpResult.payload]" is="#[MunitTools::equalTo('OK')]" message="#['The response payload is not correct!' ++ write(vars.httpResult, 'application/json')]" doc:name="Payload is Expected" />
+        </munit:validation>
+	</munit:test>
+	<munit:test name="TEST-mock_http-404_NotFound" doc:id="73ef0bf0-fa4a-4e4a-b782-42a3a37c7252" expectedErrorType="HTTP:NOT_FOUND">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="testing-mocking-http_request" />
+			<munit:enable-flow-source value="testing-mocking-http_listener" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:queue doc:name="testHttp" doc:id="ff431b46-eb84-417b-b64c-770355db5f1a" queueName="testHttp">
+				<munit-tools:value ><![CDATA[#[{
+	  httpCode: 404
+	, httpResponse: "Not Found"
+}]]]></munit-tools:value>
+			</munit-tools:queue>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Call Mock HTTP" doc:id="6ab459ee-a95f-4af8-9ada-11516cd7a48e" name="testing-mocking-http_request"/>
+		</munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.httpResult.attributes.statusCode]" is="#[MunitTools::equalTo(404)]" message="#['The HTTP Status code is not correct!' ++ write(vars.httpResult, 'application/json')]" doc:name="Status Code is 404" />
+            <munit-tools:assert-that expression="#[vars.httpResult.payload]" is="#[MunitTools::equalTo('Not Found')]" message="#['The response payload is not correct!' ++ write(vars.httpResult, 'application/json')]" doc:name="Payload is Expected" />
+        </munit:validation>
+	</munit:test>
+</mule>
